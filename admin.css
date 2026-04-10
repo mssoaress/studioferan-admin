@@ -569,6 +569,10 @@ body {
 }
 
 .kcard {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-family: 'Inter Tight', sans-serif;
   background: var(--s2);
   border: 1px solid var(--line);
   border-radius: var(--rsm);
@@ -576,6 +580,10 @@ body {
   cursor: pointer;
   transition: border-color .15s, transform .12s;
   border-left: 3px solid var(--line);
+  -webkit-tap-highlight-color: rgba(160, 200, 130, .15);
+  touch-action: manipulation;
+  -webkit-appearance: none;
+  color: inherit;
 }
 
 .kcard:hover {
@@ -1338,20 +1346,24 @@ textarea::placeholder {
 
 /* ── MODAIS ──────────────────────────────────── */
 .modal-bg {
-  display: none;
+  display: none !important;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, .75);
+  background: rgba(0, 0, 0, .8);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  z-index: 200;
+  z-index: 500;
   align-items: center;
   justify-content: center;
   padding: 20px;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .modal-bg.open {
-  display: flex;
+  display: flex !important;
+  visibility: visible;
+  pointer-events: auto;
   animation: mfade .18s ease;
 }
 
@@ -1465,4 +1477,69 @@ textarea::placeholder {
 .ag-row.total span:last-child {
   color: var(--acc);
   font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── MODAL AGENDAMENTO — AÇÕES ───────────────── */
+.ag-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0 8px;
+  border-top: 1px solid var(--line);
+  margin-top: 4px;
+}
+
+.ag-status-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  color: var(--t3);
+}
+
+.ag-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.ag-btn-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  border: none;
+  border-radius: var(--rsm);
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .15s, transform .12s;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ag-btn-action:active {
+  transform: scale(.97);
+  opacity: .85;
+}
+
+.ag-btn-ok {
+  background: var(--ok-bg);
+  color: var(--ok);
+  border: 1px solid rgba(106, 191, 138, .3);
+}
+
+.ag-btn-wait {
+  background: var(--warn-bg);
+  color: var(--warn);
+  border: 1px solid rgba(212, 160, 74, .3);
+}
+
+.ag-btn-err {
+  background: var(--err-bg);
+  color: var(--err);
+  border: 1px solid rgba(217, 96, 96, .3);
 }

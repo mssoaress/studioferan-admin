@@ -227,12 +227,12 @@ function renderKanban(novosIds) {
                   : "ag";
             var pulse = novosIds.indexOf(a.id) > -1 ? " new-pulse" : "";
             return (
-              '<div class="kcard ' +
+              '<button class="kcard ' +
               cls +
               pulse +
               '" onclick="abrirAg(\'' +
               a.id +
-              "')\">" +
+              '\')" type="button">' +
               '<div class="kcard-time">⏰ ' +
               a.horario +
               "</div>" +
@@ -245,7 +245,7 @@ function renderKanban(novosIds) {
               '<div class="kcard-price">R$ ' +
               fmtM(a.total) +
               "</div>" +
-              "</div>"
+              "</button>"
             );
           })
           .join("")) +
@@ -257,50 +257,114 @@ window.abrirAg = function (id) {
     return a.id === id;
   });
   if (!ag) return;
-  document.getElementById("mAgTitle").textContent =
-    "Agendamento — " + ag.horario;
+
+  // Título
+  document.getElementById("mAgTitle").textContent = ag.clienteNome;
+
+  // Body: dados do agendamento
   document.getElementById("mAgBody").innerHTML =
     '<div class="ag-rows">' +
-    agRow("Cliente", ag.clienteNome) +
-    agRow("Data / Hora", fmtDate(ag.data) + " — " + ag.horario) +
-    agRow("Serviços", (ag.servicos || []).join(", ")) +
-    agRow("Origem", ag.origem === "online" ? "📱 Online" : "🔧 Admin") +
-    agRowTotal("Total", "R$ " + fmtM(ag.total)) +
+    agRow("📅 Data", fmtDate(ag.data)) +
+    agRow("⏰ Horário", ag.horario) +
+    agRow("✂️ Serviços", (ag.servicos || []).join(", ")) +
+    agRow("📲 Origem", ag.origem === "online" ? "Online (site)" : "Admin") +
+    agRowTotal("💰 Total", "R$ " + fmtM(ag.total)) +
     "</div>" +
-    '<div style="margin-top:10px"><span class="badge badge-' +
+    // Status atual
+    '<div class="ag-status-row">' +
+    '<span class="ag-status-lbl">Status atual</span>' +
+    '<span class="badge badge-' +
     stCls(ag.status) +
     '">' +
     stLbl(ag.status) +
-    "</span></div>";
-  var foot = document.getElementById("mAgFoot");
-  foot.innerHTML =
-    '<button class="btn-ghost" onclick="closeModal(\'mAg\')">Fechar</button>';
-  if (ag.status === "aguardando") {
-    foot.innerHTML +=
-      '<button class="btn-err" onclick="setStatus(\'' +
-      ag.id +
-      "','cancelado')\">Cancelar</button>";
-    foot.innerHTML +=
-      '<button class="btn-ok" onclick="setStatus(\'' +
-      ag.id +
-      "','concluido')\">✓ Concluído</button>";
-  }
+    "</span>" +
+    "</div>" +
+    // Botões de ação em bloco (mobile-friendly)
+    '<div class="ag-actions" id="agActions_' +
+    ag.id +
+    '">' +
+    acoesBotoes(ag) +
+    "</div>";
+
+  // Footer: só fechar
+  document.getElementById("mAgFoot").innerHTML =
+    '<button class="btn-ghost" style="width:100%" onclick="closeModal(\'mAg\')">Fechar</button>';
+
   openModal("mAg");
 };
 
+function acoesBotoes(ag) {
+  var html = "";
+  if (ag.status !== "concluido") {
+    html +=
+      '<button class="ag-btn-action ag-btn-ok" onclick="setStatus(\'' +
+      ag.id +
+      "','concluido')\">" +
+      '<svg viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M4 10l5 5 7-9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' +
+      "Marcar como Concluído" +
+      "</button>";
+  }
+  if (ag.status !== "aguardando") {
+    html +=
+      '<button class="ag-btn-action ag-btn-wait" onclick="setStatus(\'' +
+      ag.id +
+      "','aguardando')\">" +
+      '<svg viewBox="0 0 20 20" fill="none" width="18" height="18"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.8"/><path d="M10 6v4l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>' +
+      "Voltar para Aguardando" +
+      "</button>";
+  }
+  if (ag.status !== "cancelado") {
+    html +=
+      '<button class="ag-btn-action ag-btn-err" onclick="setStatus(\'' +
+      ag.id +
+      "','cancelado')\">" +
+      '<svg viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
+      "Cancelar Agendamento" +
+      "</button>";
+  }
+  if (!html)
+    html =
+      '<p style="color:var(--t3);font-size:13px;text-align:center;padding:8px 0">Nenhuma ação disponível.</p>';
+  return html;
+}
+
 window.setStatus = async function (id, status) {
+  // Atualiza no Firebase
   try {
     await db.collection("agendamentos").doc(id).update({ status: status });
-  } catch (e) {}
+  } catch (e) {
+    console.warn("[setStatus]", e.message);
+  }
+
+  // Atualiza localmente
   var ag = AD.agendamentos.find(function (a) {
     return a.id === id;
   });
   if (ag) ag.status = status;
-  closeModal("mAg");
-  toast(
-    status === "concluido" ? "Concluído ✓" : "Cancelado",
-    status === "concluido" ? "ok" : "err",
-  );
+
+  // Atualiza o modal sem fechar (feedback imediato)
+  var actionsEl = document.getElementById("agActions_" + id);
+  if (actionsEl && ag) {
+    actionsEl.innerHTML = acoesBotoes(ag);
+    // Atualiza badge de status
+    var badgeEl = actionsEl.parentElement.querySelector(".badge");
+    if (badgeEl) {
+      badgeEl.className = "badge badge-" + stCls(status);
+      badgeEl.textContent = stLbl(status);
+    }
+  }
+
+  // Toast de feedback
+  var msgs = {
+    concluido: "Marcado como concluído ✓",
+    cancelado: "Agendamento cancelado",
+    aguardando: "Voltou para aguardando",
+  };
+  var types = { concluido: "ok", cancelado: "err", aguardando: "" };
+  toast(msgs[status] || "Atualizado", types[status] || "");
+
+  // Atualiza o kanban em segundo plano
+  renderKanban([]);
 };
 
 function agRow(k, v) {
