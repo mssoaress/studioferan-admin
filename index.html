@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#080808"/>
+  <title>Studio Ferran — Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=Inter+Tight:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css"/>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sb-brand">
+    <img class="sb-logo-img" src="img/logo.jpg" alt="Studio Ferran"
+         onerror="this.style.display='none';this.nextSibling.style.display='flex'"/>
+    <div class="sb-brand-fb" style="display:none">
+      <div class="sb-mark">SF</div>
+      <div><div class="sb-name">Studio Ferran</div><div class="sb-sub">ADMIN</div></div>
+    </div>
+  </div>
+  <nav class="sb-nav">
+    <a class="sb-item active" data-page="agendamentos" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Agendamentos
+    </a>
+    <a class="sb-item" data-page="novo" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Novo Agendamento
+    </a>
+    <a class="sb-item" data-page="clientes" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      Clientes
+    </a>
+    <a class="sb-item" data-page="servicos" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      Serviços
+    </a>
+    <a class="sb-item" data-page="relatorios" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Relatórios
+    </a>
+  </nav>
+  <div class="sb-footer">
+    <span class="st-dot" id="statusDot"></span>
+    <span id="statusTxt">—</span>
+  </div>
+</aside>
+
+<header class="topbar">
+  <button class="topbar-menu" id="menuBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <img class="topbar-logo" src="img/logo.jpg" alt="Studio Ferran"
+       onerror="this.style.display='none';this.nextSibling.style.display='block'"/>
+  <span class="topbar-brand" style="display:none">Studio Ferran</span>
+  <span class="topbar-clock" id="topbarClock"></span>
+</header>
+<div class="sb-overlay" id="sbOverlay"></div>
+
+<main class="main">
+
+  <!-- AGENDAMENTOS -->
+  <div class="page active" id="pg-agendamentos">
+    <div class="pg-head">
+      <div><h1 class="pg-title">Agendamentos</h1><p class="pg-sub" id="dayLabel">Hoje</p></div>
+      <div class="pg-actions">
+        <div class="date-nav">
+          <button class="icon-btn" id="btnPrev">‹</button>
+          <span class="date-display" id="dateDisplay"></span>
+          <button class="icon-btn" id="btnNext">›</button>
+        </div>
+        <button class="btn-acc" onclick="navTo('novo')">+ Agendar</button>
+      </div>
+    </div>
+    <div class="live-badge"><span class="live-dot"></span>ao vivo</div>
+    <div class="kanban" id="kanban"><div class="kanban-loading">Conectando...</div></div>
+  </div>
+
+  <!-- NOVO AGENDAMENTO -->
+  <div class="page" id="pg-novo">
+    <div class="pg-head"><div><h1 class="pg-title">Novo Agendamento</h1><p class="pg-sub">Preencha os dados</p></div></div>
+    <div class="form-card">
+      <div class="ff"><label>Serviços</label>
+        <div class="ns-list" id="newServList"></div>
+        <div class="ns-total hidden" id="newServTotal"><span>Total</span><strong id="newServTotalVal">R$ 0,00</strong></div>
+      </div>
+      <div class="ff"><label>Cliente</label>
+        <div class="cli-row">
+          <input type="text" id="newCliSearch" placeholder="Buscar cliente…" autocomplete="off"/>
+          <button class="btn-ghost-sm" onclick="toggleNewCli()">+ Novo</button>
+        </div>
+        <div class="cli-dd hidden" id="cliDropdown"></div>
+        <div class="new-cli-fields hidden" id="newCliFields">
+          <input type="text" id="newCliNome" placeholder="Nome completo"/>
+          <input type="tel"  id="newCliTel"  placeholder="(83) 9xxxx-xxxx"/>
+        </div>
+      </div>
+      <div class="ff"><label>Data</label><input type="date" id="newDate"/></div>
+      <div class="ff"><label>Horário disponível</label><div class="nt-grid" id="newTimeGrid"></div></div>
+      <div class="form-actions">
+        <button class="btn-ghost" onclick="navTo('agendamentos')">Cancelar</button>
+        <button class="btn-acc" onclick="newConfirmar()">✓ Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLIENTES -->
+  <div class="page" id="pg-clientes">
+    <div class="pg-head">
+      <div><h1 class="pg-title">Clientes</h1><p class="pg-sub" id="cliCount">—</p></div>
+      <button class="btn-acc" onclick="openModal('mCli')">+ Novo</button>
+    </div>
+    <input type="text" class="search-bar" id="cliSearch" placeholder="Buscar nome ou telefone…" oninput="renderClientes()"/>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Nome</th><th>Telefone</th><th>Atendimentos</th><th>Total Gasto</th><th></th></tr></thead>
+        <tbody id="cliBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SERVIÇOS -->
+  <div class="page" id="pg-servicos">
+    <div class="pg-head">
+      <div><h1 class="pg-title">Serviços</h1><p class="pg-sub">Catálogo</p></div>
+      <button class="btn-acc" onclick="openModal('mServ')">+ Novo</button>
+    </div>
+    <div class="cards-grid" id="servCards"></div>
+  </div>
+
+  <!-- RELATÓRIOS -->
+  <div class="page" id="pg-relatorios">
+    <div class="pg-head">
+      <div><h1 class="pg-title">Relatórios</h1><p class="pg-sub">Histórico completo de serviços</p></div>
+      <div class="pg-actions">
+        <select class="sel-inp" id="relPeriodo" onchange="renderRelatorios()">
+          <option value="hoje">Hoje</option>
+          <option value="semana">Esta semana</option>
+          <option value="mes" selected>Este mês</option>
+          <option value="total">Tudo</option>
+        </select>
+        <select class="sel-inp" id="relStatus" onchange="renderRelatorios()">
+          <option value="">Todos os status</option>
+          <option value="aguardando">Aguardando</option>
+          <option value="concluido">Concluído</option>
+          <option value="cancelado">Cancelado</option>
+        </select>
+      </div>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi-card acc"><span class="kpi-lbl">Faturamento</span><span class="kpi-val" id="relFat">R$ 0,00</span><span class="kpi-tag">concluídos</span></div>
+      <div class="kpi-card"><span class="kpi-lbl">Atendimentos</span><span class="kpi-val" id="relTotal">0</span><span class="kpi-tag">no período</span></div>
+      <div class="kpi-card"><span class="kpi-lbl">Ticket Médio</span><span class="kpi-val" id="relTicket">R$ 0,00</span><span class="kpi-tag">por serviço</span></div>
+      <div class="kpi-card"><span class="kpi-lbl">Cancelamentos</span><span class="kpi-val" id="relCanc">0</span><span class="kpi-tag">no período</span></div>
+    </div>
+    <div class="rel-block">
+      <div class="rel-bhead">
+        <h3 class="block-title">Histórico de Serviços</h3>
+        <input type="text" class="search-bar" id="relSearch" placeholder="Buscar cliente ou serviço…" oninput="renderRelatorios()" style="max-width:240px;margin:0"/>
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>Data</th><th>Hora</th><th>Cliente</th><th>Serviços</th><th>Valor</th><th>Status</th><th>Origem</th></tr></thead>
+          <tbody id="relBody"></tbody>
+        </table>
+      </div>
+      <div class="rel-pag">
+        <button class="btn-ghost-sm" id="relPrev" onclick="relPage(-1)">← Anterior</button>
+        <span class="rel-pag-info" id="relPageInfo">1 / 1</span>
+        <button class="btn-ghost-sm" id="relNext" onclick="relPage(1)">Próxima →</button>
+      </div>
+    </div>
+    <div class="rel-charts">
+      <div class="rel-block"><h3 class="block-title">Serviços Mais Realizados</h3><div id="relByServ"></div></div>
+      <div class="rel-block"><h3 class="block-title">Faturamento por Serviço</h3><div id="relFatServ"></div></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODALS -->
+<div class="modal-bg" id="mCli">
+  <div class="modal">
+    <div class="modal-head"><h3>Novo Cliente</h3><button onclick="closeModal('mCli')">×</button></div>
+    <div class="modal-body">
+      <div class="ff"><label>Nome</label><input type="text" id="mCliNome" placeholder="Nome completo"/></div>
+      <div class="ff"><label>Telefone</label><input type="tel" id="mCliTel" placeholder="(83) 9xxxx-xxxx"/></div>
+    </div>
+    <div class="modal-foot"><button class="btn-ghost" onclick="closeModal('mCli')">Cancelar</button><button class="btn-acc" onclick="salvarCliente()">Salvar</button></div>
+  </div>
+</div>
+<div class="modal-bg" id="mServ">
+  <div class="modal">
+    <div class="modal-head"><h3>Novo Serviço</h3><button onclick="closeModal('mServ')">×</button></div>
+    <div class="modal-body">
+      <div class="ff"><label>Nome</label><input type="text" id="mServNome" placeholder="Ex: Corte"/></div>
+      <div class="ff"><label>Preço (R$)</label><input type="number" id="mServPreco" placeholder="45.00" step="0.01"/></div>
+      <div class="ff"><label>Duração (min)</label><input type="number" id="mServDur" placeholder="40"/></div>
+    </div>
+    <div class="modal-foot"><button class="btn-ghost" onclick="closeModal('mServ')">Cancelar</button><button class="btn-acc" onclick="salvarServico()">Salvar</button></div>
+  </div>
+</div>
+<div class="modal-bg" id="mAg">
+  <div class="modal">
+    <div class="modal-head"><h3 id="mAgTitle">Agendamento</h3><button onclick="closeModal('mAg')">×</button></div>
+    <div class="modal-body" id="mAgBody"></div>
+    <div class="modal-foot" id="mAgFoot"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>
