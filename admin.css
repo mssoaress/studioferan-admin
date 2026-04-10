@@ -1334,3 +1334,135 @@ textarea::placeholder {
     grid-template-columns: repeat(4, 1fr);
   }
 }
+
+
+/* ── MODAIS ──────────────────────────────────── */
+.modal-bg {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-bg.open {
+  display: flex;
+  animation: mfade .18s ease;
+}
+
+@keyframes mfade {
+  from {
+    opacity: 0
+  }
+
+  to {
+    opacity: 1
+  }
+}
+
+.modal {
+  background: var(--s1);
+  border: 1px solid var(--line2);
+  border-radius: var(--r);
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: mup .2s ease;
+}
+
+@keyframes mup {
+  from {
+    transform: translateY(14px);
+    opacity: 0
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1
+  }
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.modal-head h3 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.modal-head button {
+  background: none;
+  border: none;
+  color: var(--t3);
+  font-size: 22px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+.modal-head button:hover {
+  color: var(--t1);
+}
+
+.modal-body {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-foot {
+  padding: 12px 18px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Detalhe agendamento dentro do modal */
+.ag-rows {
+  background: var(--s2);
+  border-radius: var(--rsm);
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+
+.ag-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13.5px;
+  gap: 12px;
+}
+
+.ag-row:last-child {
+  border-bottom: none;
+}
+
+.ag-row span:first-child {
+  color: var(--t3);
+}
+
+.ag-row.total {
+  font-weight: 600;
+}
+
+.ag-row.total span:last-child {
+  color: var(--acc);
+  font-family: 'JetBrains Mono', monospace;
+}
