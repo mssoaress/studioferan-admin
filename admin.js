@@ -108,13 +108,28 @@ function closeSidebar() {
   document.getElementById("sbOverlay").classList.remove("show");
 }
 window.navTo = function (page) {
+  // Atualiza nav items
   document.querySelectorAll(".sb-item").forEach(function (i) {
     i.classList.toggle("active", i.getAttribute("data-page") === page);
   });
+
+  // Esconde todas as páginas
   document.querySelectorAll(".page").forEach(function (p) {
     p.classList.remove("active");
   });
-  document.getElementById("pg-" + page).classList.add("active");
+
+  // Mostra a página correta
+  var el = document.getElementById("pg-" + page);
+  if (el) el.classList.add("active");
+
+  // Força scroll para o topo (iOS Safari fix)
+  window.scrollTo(0, 0);
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+  var main = document.querySelector(".main");
+  if (main) main.scrollTop = 0;
+
+  // Renderiza a aba
   if (page === "agendamentos") renderKanban([]);
   if (page === "novo") initNovo();
   if (page === "clientes") renderClientes();
